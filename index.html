@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>סוכן חכם - בונה אתרים</title>
     <style>
-        body { margin: 0; display: flex; height: 100vh; font-family: system-ui; overflow: hidden; }
+        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; overflow: hidden; }
         #preview-side { flex: 2; background: #fff; border-left: 2px solid #333; }
         #chat-side { flex: 1; display: flex; flex-direction: column; background: #f4f4f9; }
         #messages { flex: 1; overflow-y: auto; padding: 20px; }
@@ -13,13 +13,13 @@
         button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
         iframe { width: 100%; height: 100%; border: none; }
         .msg { margin-bottom: 10px; padding: 10px; border-radius: 8px; max-width: 80%; }
-        .user { background: #007bff; color: white; align-self: flex-start; }
-        .bot { background: #e2e2e2; color: #333; }
+        .user { background: #007bff; color: white; align-self: flex-start; text-align: right; }
+        .bot { background: #e2e2e2; color: #333; align-self: flex-end; }
     </style>
 </head>
 <body>
     <div id="preview-side">
-        <iframe id="display-frame" srcdoc="<h2 style='text-align:center; margin-top:20%'>האתר שלך יופיע כאן...</h2>"></iframe>
+        <iframe id="display-frame" srcdoc="<h2 style='text-align:center; margin-top:20%'>האתר המעוצב שלך יופיע כאן...</h2>"></iframe>
     </div>
     <div id="chat-side">
         <div id="messages"></div>
@@ -48,7 +48,7 @@
                     addMessage('הבוט: האתר מוכן! בדוק את החלונית משמאל.', 'bot');
                 }
             } catch (err) {
-                addMessage('שגיאה בחיבור לסוכן.', 'bot');
+                addMessage('שגיאה בחיבור לסוכן. וודא שהשרת ב-Render רץ.', 'bot');
             }
         }
         function addMessage(text, type) {
@@ -56,6 +56,7 @@
             div.className = 'msg ' + type;
             div.textContent = text;
             document.getElementById('messages').appendChild(div);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         }
     </script>
 </body>
