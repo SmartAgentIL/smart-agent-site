@@ -13,16 +13,16 @@ app.post('/chat', async (req, res) => {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-4o",
             messages: [
-                { role: "system", content: "אתה עוזר שבונה אתרים. החזר רק קוד HTML מלא." },
+                { role: "system", content: "אתה סוכן AI שבונה אתרים. החזר אך ורק קוד HTML מלא כולל CSS. בלי טקסט נוסף." },
                 { role: "user", content: req.body.message }
             ]
         }, {
             headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}` }
         });
-        const code = response.data.choices[0].message.content.replace(/```html|```/g, '');
-        res.json({ code: code });
+        const cleanCode = response.data.choices[0].message.content.replace(/```html|```/g, '').trim();
+        res.json({ code: cleanCode });
     } catch (error) {
-        res.status(500).json({ error: "Error" });
+        res.status(500).json({ error: "Server Error" });
     }
 });
 
