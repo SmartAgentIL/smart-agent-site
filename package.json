@@ -1,5 +1,5 @@
 {
-  "name": "smart-agent-backend",
+  "name": "smart-agent-site",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
