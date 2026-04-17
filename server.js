@@ -1,12 +1,12 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const app = express();
+require('dotenv').config();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// המפתח יילקח אוטומטית מההגדרות (Environment Variables) שהגדרנו ב-Render
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 app.post('/chat', async (req, res) => {
@@ -14,21 +14,32 @@ app.post('/chat', async (req, res) => {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-4o",
             messages: [
-                { role: "system", content: "אתה סוכן ביצוע שבונה אתרים. כשמבקשים ממך אתר, תחזיר אך ורק קוד HTML מלא, כולל CSS פנימי. אל תוסיף הסברים, רק קוד." },
+                { 
+                    role: "system", 
+                    content: "אתה סוכן ביצוע מומחה לבניית אתרים. כשמבקשים ממך לבנות אתר, תחזיר אך ורק קוד HTML מלא, כולל CSS מודרני (אפשר להשתמש ב-Tailwind דרך CDN) ו-JS אם צריך. אל תוסיף הסברים או טקסט לפני/אחרי הקוד. תחזיר רק את הקוד עצמו." 
+                },
                 { role: "user", content: req.body.message }
-            ]
+            ],
+            temperature: 0.7
         }, {
-            headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}` }
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
         });
 
-        const aiContent = response.data.choices[0].message.content;
-        const cleanCode = aiContent.replace(/```html|```/g, '');
+        let aiContent = response.data.choices[0].message.content;
+        
+        // ניקוי תגיות Markdown אם ה-AI הוסיף אותן בטעות
+        const cleanCode = aiContent.replace(/```html|```/g, '').trim();
+        
         res.json({ code: cleanCode });
     } catch (error) {
-        console.error("Error:", error.message);
-        res.status(500).json({ error: "שגיאה בחיבור ל-AI" });
+        console.error("OpenAI Error:", error.response ? error.response.data : error.message);
+        res.status(500).json({ error: "שגיאה פנימית בחיבור ל-OpenAI" });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+// פורט 10000 הוא ברירת המחדל של Render
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
