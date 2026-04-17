@@ -6,6 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// המפתח יילקח אוטומטית מההגדרות (Environment Variables) שהגדרנו ב-Render
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 app.post('/chat', async (req, res) => {
@@ -24,8 +25,8 @@ app.post('/chat', async (req, res) => {
         const cleanCode = aiContent.replace(/```html|```/g, '');
         res.json({ code: cleanCode });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "שגיאה פנימית בשרת" });
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "שגיאה בחיבור ל-AI" });
     }
 });
 
