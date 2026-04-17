@@ -2,30 +2,31 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>סוכן AI - בונה אתרים</title>
     <style>
-        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; background: #1a1a1a; color: white; }
-        #preview-side { flex: 2; background: #fff; border-left: 2px solid #333; }
+        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; overflow: hidden; background: #1a1a1a; color: white; }
+        #preview-side { flex: 2; background: #fff; border-left: 2px solid #333; position: relative; }
         #chat-side { flex: 1; display: flex; flex-direction: column; background: #2d2d2d; min-width: 350px; }
         #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        #input-area { padding: 15px; border-top: 1px solid #444; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border-radius: 5px; border: none; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #input-area { padding: 15px; border-top: 1px solid #444; display: flex; gap: 10px; background: #2d2d2d; }
+        input { flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #444; background: #3d3d3d; color: white; outline: none; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         iframe { width: 100%; height: 100%; border: none; background: white; }
-        .msg { padding: 10px; border-radius: 10px; max-width: 80%; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 85%; line-height: 1.4; }
         .user { background: #007bff; align-self: flex-start; }
         .bot { background: #444; align-self: flex-end; }
     </style>
 </head>
 <body>
     <div id="preview-side">
-        <iframe id="display-frame" srcdoc="<h2 style='text-align:center;margin-top:20%'>האתר יופיע כאן...</h2>"></iframe>
+        <iframe id="display-frame" srcdoc="<div style='display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;'><h2>האתר המעוצב שלך יופיע כאן...</h2></div>"></iframe>
     </div>
     <div id="chat-side">
-        <div id="messages"><div class="msg bot">שלום! מה תרצה שאבנה לך?</div></div>
+        <div id="messages"><div class="msg bot">שלום! מה תרצה שאבנה לך היום?</div></div>
         <div id="input-area">
-            <input type="text" id="user-task" placeholder="כתוב כאן...">
-            <button onclick="executeTask()">שלח</button>
+            <input type="text" id="user-task" placeholder="תבנה לי אתר למסעדה..." onkeypress="if(event.key==='Enter') executeTask()">
+            <button onclick="executeTask()">בצע!</button>
         </div>
     </div>
     <script>
@@ -36,6 +37,7 @@
             if(!task) return;
             addMessage(task, 'user');
             input.value = '';
+            const loadingMsg = addMessage('מעבד בקשה...', 'bot');
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
@@ -45,16 +47,19 @@
                 const data = await response.json();
                 if(data.code) {
                     document.getElementById('display-frame').srcdoc = data.code;
+                    loadingMsg.textContent = 'האתר מוכן!';
                 }
             } catch (err) {
-                addMessage('שגיאה בחיבור לשרת.', 'bot');
+                loadingMsg.textContent = 'שגיאה בחיבור לשרת.';
             }
         }
         function addMessage(text, type) {
             const div = document.createElement('div');
             div.className = 'msg ' + type;
             div.textContent = text;
-            document.getElementById('messages').appendChild(div);
+            const container = document.getElementById('messages');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
             return div;
         }
     </script>
