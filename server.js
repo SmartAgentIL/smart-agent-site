@@ -13,7 +13,10 @@ app.post('/chat', async (req, res) => {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-4o",
             messages: [
-                { role: "system", content: "You are an AI that builds websites. Return ONLY the full HTML code including CSS. No extra text." },
+                { 
+                    role: "system", 
+                    content: "You are an AI web developer. Return ONLY the full HTML code including CSS. No extra text or explanations." 
+                },
                 { role: "user", content: req.body.message }
             ]
         }, {
@@ -22,11 +25,14 @@ app.post('/chat', async (req, res) => {
                 'Content-Type': 'application/json'
             }
         });
-        const code = response.data.choices[0].message.content.replace(/```html|```/g, '');
-        res.json({ code: code });
+
+        let aiContent = response.data.choices[0].message.content;
+        const cleanCode = aiContent.replace(/```html|```/g, '').trim();
+        
+        res.json({ code: cleanCode });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server Error" });
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
