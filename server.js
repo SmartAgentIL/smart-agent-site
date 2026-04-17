@@ -21,11 +21,11 @@ app.post('/chat', async (req, res) => {
         });
 
         const aiContent = response.data.choices[0].message.content;
-        // ניקוי תגיות קוד אם ה-AI מוסיף אותן
         const cleanCode = aiContent.replace(/```html|```/g, '');
         res.json({ code: cleanCode });
     } catch (error) {
-        res.status(500).json({ error: "משהו השתבש בשרת" });
+        console.error(error);
+        res.status(500).json({ error: "שגיאה פנימית בשרת" });
     }
 });
 
